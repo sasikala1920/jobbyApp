@@ -2,6 +2,7 @@ import {Component} from 'react'
 import Loader from 'react-loader-spinner'
 import Cookies from 'js-cookie'
 import Header from '../Header'
+import {Link} from 'react-router-dom'
 import './index.css'
 
 const apiStatusConstants = {
@@ -56,7 +57,8 @@ class JobsRoute extends Component {
     this.setState({apiStatus: apiStatusConstants.inProgress})
     const jwtToken = Cookies.get('jwt_token')
     const {employmentType, minimumPackage, searchInput} = this.state
-    const employmentTypes = employmentType.join(',')
+    const employmentTypes =
+      employmentType.length > 0 ? employmentType.join(',') : ''
     const url = `https://apis.ccbp.in/jobs?employment_type=${employmentTypes}&minimum_package=${minimumPackage}&search=${searchInput}`
     const options = {
       headers: {Authorization: `Bearer ${jwtToken}`},
@@ -91,6 +93,19 @@ class JobsRoute extends Component {
 
   onSearch = () => {
     this.getJobs()
+  }
+  changeEmploymentType = id => {
+    this.setState(
+      prevState => ({
+        employmentType: prevState.employmentType.includes(id)
+          ? prevState.employmentType.filter(each => each !== id)
+          : [...prevState.employmentType, id],
+      }),
+      this.getJobs,
+    )
+  }
+  changeSalaryRange = id => {
+    this.setState({minimumPackage: id}, this.getJobs)
   }
 
   renderProfile = () => {
@@ -136,15 +151,25 @@ class JobsRoute extends Component {
     return (
       <ul className="jobs-list">
         {jobsList.map(eachJob => (
-          <li key={eachJob.id}>
-            <img src={eachJob.companyLogoUrl} alt="company logo" />
-            <h1>{eachJob.title}</h1>
-            <p>{eachJob.rating}</p>
-            <p>{eachJob.location}</p>
-            <p>{eachJob.employmentType}</p>
-            <h1>Description</h1>
-            <p>{eachJob.jobDescription}</p>
-          </li>
+          <Link
+            to={`/jobs/${eachJob.id}`}
+            className="job-item-link"
+            key={eachJob.id}
+          >
+            <li className="job-item-card">
+              <img
+                src={eachJob.companyLogoUrl}
+                alt="company logo"
+                className="company-logo"
+              />
+              <h1>{eachJob.title}</h1>
+              <p>{eachJob.rating}</p>
+              <p>{eachJob.location}</p>
+              <p>{eachJob.employmentType}</p>
+              <h1>Description</h1>
+              <p>{eachJob.jobDescription}</p>
+            </li>
+          </Link>
         ))}
       </ul>
     )
@@ -175,15 +200,75 @@ class JobsRoute extends Component {
           <h1>Type of Employment</h1>
           <ul>
             <li>
-              <input type="checkbox" id="FULLTIME" value="FULLTIME" />
+              <input
+                type="checkbox"
+                id="FULLTIME"
+                onChange={() => this.changeEmploymentType('FULLTIME')}
+              />
               <label htmlFor="FULLTIME">Full Time</label>
+            </li>
+            <li>
+              <input
+                type="checkbox"
+                id="PARTTIME"
+                onChange={() => this.changeEmploymentType('PARTTIME')}
+              />
+              <label htmlFor="PARTTIME">Part Time</label>
+            </li>
+            <li>
+              <input
+                type="checkbox"
+                id="FREELANCE"
+                onChange={() => this.changeEmploymentType('FREELANCE')}
+              />
+              <label htmlFor="FREELANCE">Freelance</label>
+            </li>
+            <li>
+              <input
+                type="checkbox"
+                id="INTERNSHIP"
+                onChange={() => this.changeEmploymentType('INTERNSHIP')}
+              />
+              <label htmlFor="INTERNSHIP">Internship</label>
             </li>
           </ul>
           <h1>Salary Range</h1>
           <ul>
             <li>
-              <input type="radio" id="10LPA" name="salary" value="1000000" />
+              <input
+                type="radio"
+                id="10LPA"
+                name="salary"
+                onChange={() => this.changeSalaryRange('1000000')}
+              />
               <label htmlFor="10LPA">10 LPA and above</label>
+            </li>
+            <li>
+              <input
+                type="radio"
+                id="20LPA"
+                name="salary"
+                onChange={() => this.changeSalaryRange('2000000')}
+              />
+              <label htmlFor="20LPA">20 LPA and above</label>
+            </li>
+            <li>
+              <input
+                type="radio"
+                id="30LPA"
+                name="salary"
+                onChange={() => this.changeSalaryRange('3000000')}
+              />
+              <label htmlFor="30LPA">30 LPA and above</label>
+            </li>
+            <li>
+              <input
+                type="radio"
+                id="40LPA"
+                name="salary"
+                onChange={() => this.changeSalaryRange('4000000')}
+              />
+              <label htmlFor="40LPA">40 LPA and above</label>
             </li>
           </ul>
           <input
@@ -215,3 +300,4 @@ class JobsRoute extends Component {
 }
 
 export default JobsRoute
+
